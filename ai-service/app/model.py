@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler
 import joblib
 
 #get data from football-data api. apikey required. 
-uri = 'https://api.football-data.org/v4/competitions/CL/matches'
+# uri = 'https://api.football-data.org/v4/competitions/CL/matches'
 # headers = { 'X-Auth-Token': 'abe0c86fbb834670a6c7551e588468fb' }
 
 # # Load data from API
