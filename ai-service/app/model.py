@@ -17,9 +17,8 @@ uri = 'https://api.football-data.org/v4/competitions/CL/matches'
 
 # # get data from ./pre-trained-data.json   
 
-# df = pd.read_json('./cl-data-2024.json')
-response = requests.get(uri, headers=headers)
-data = response.json()
+df = pd.read_json('./cl-data-2024.json')
+data = df.to_dict(orient='records')
 
 if not data["matches"]:
     print("No matches found")
