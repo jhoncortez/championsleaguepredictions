@@ -1,0 +1,21 @@
+date,team1,team2,team1_goals,team2_goals,winner,team1_form,team2_form
+2023-05-01,Real Madrid,Man City,3,1,team1,WWLWD,LDWWW
+2023-05-01,Paris Saint Germain,Barcelona,3,1,team1,WWLWD,LDWWW
+2023-04-26,Bayern Munich,AC Milan,2,0,team1,WWLDW,LWWLD
+2023-04-26,Liverpool,Inter Milan,1,1,draw,DWWLD,WLWWD
+2023-04-25,Chelsea,Dortmund,0,2,team2,LLWWD,WWLDW
+2023-04-25,Atletico Madrid,Porto,3,2,team1,DLWWW,LDLWW
+2023-04-19,Man City,Real Madrid,4,0,team1,WWWWL,DWWLD
+2023-04-19,Barcelona,Paris Saint Germain,1,3,team2,LWWLD,WWLDW
+2023-04-18,AC Milan,Bayern Munich,0,2,team2,LLWWD,WWWWW
+2023-04-18,Inter Milan,Liverpool,2,2,draw,WWLDD,DWWLD
+2023-04-12,Dortmund,Chelsea,1,0,team1,WWLWD,LLDLW
+2023-04-12,Porto,Atletico Madrid,1,1,draw,DLWWD,WDLWW
+2023-04-05,Real Madrid,Liverpool,1,0,team1,WDWWL,DLWWD
+2023-04-05,Man City,Dortmund,3,0,team1,WWWWD,LLDWW
+2023-04-04,Paris Saint Germain,Bayern Munich,2,2,draw,WWLDD,WWWLW
+2023-04-04,Barcelona,Chelsea,2,1,team1,LWWLD,LLDLW
+2023-03-15,AC Milan,Porto,1,0,team1,WWLWD,DLDWW
+2023-03-15,Inter Milan,Atletico Madrid,0,1,team2,LDLWW,WWDLW
+2023-03-14,Liverpool,Real Madrid,0,1,team2,DLWWD,WWWLW
+2023-03-14,Dortmund,Man City,1,3,team2,LLWWW,WWWWW

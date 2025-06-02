@@ -1,106 +1,60 @@
-import requests
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
-from sklearn.preprocessing import StandardScaler
 import joblib
 
-#get data from football-data api. apikey required. 
-# uri = 'https://api.football-data.org/v4/competitions/CL/matches'
-# headers = { 'X-Auth-Token': 'abe0c86fbb834670a6c7551e588468fb' }
+from model_data_processing import prepare_prediction_data
 
-# # Load data from API
-# response = requests.get(uri = 'https://api.football-data.org/v4/competitions/CL/matches'
-#     , headers = {})
-# data = response.json()
+# model = joblib.load("champions_league_model_3seasons.pkl")
+model = joblib.load("enhanced_champions_league_model.pkl")
 
-# # get data from ./pre-trained-data.json   
-
-df = pd.read_json('./cl-data-2024.json')
-data = df.to_dict(orient='records')
-
-if not data["matches"]:
-    print("No matches found")
-    # You can add some additional logic here to handle the case where no matches are found
-    exit()
-    else: 
-        for match in response.json()['matches']:
-            print match
-
-        exit()
-
-# Extract relevant data from API response
-matches = data["matches"]
-teams = data["teams"]
-injuries = data["injuries"]
-head_to_head = data["head2head"]
-
-
-# Define feature engineering function
-def extract_features(match):
-    team1 = match["homeTeam"]["name"]
-    team2 = match["awayTeam"]["name"]
-    team1_form = next((team for team in teams if team["name"] == team1), None) # Find team1 in teams
-    team2_form = next((team for team in teams if team["name"] == team2), None) # Find team2 in teams
-    head_to_head_data = next((x for x in head_to_head if x["team1"] == team1 and x["team2"] == team2), None)
-    injuries_data = injuries.get(team1, []) + injuries.get(team2, [])
+def predict_match(team1, team2, venue="HOME", stage=None, team1_injuries=None, team2_injuries=None):
+    """Predicts match outcome (win/draw/loss probabilities)"""
     
-    features = {
-        "team1_avg_goals": team1_form["avg_goals"],
-        "team2_avg_goals": team2_form["avg_goals"],
-        "team1_win_rate": team1_form["win_rate"],
-        "team2_win_rate": team2_form["win_rate"],
-        "head_to_head_team1_wins": sum(1 for x in head_to_head_data if x["winner"] == team1),
-        "team1_key_injuries": len(injuries_data),
-    }
+    # Feature engineering
+    features_df = prepare_prediction_data(team1, team2, venue, stage, team1_injuries, team2_injuries)
+    print(f"Features for {team1} vs {team2}:", features_df)  # Add this line
+
+    features_df.to_csv("match_features.csv", index=False)
     
-    return features
-
-# Extract features from matches
-X = []
-y = []
-for match in matches:
-    features = extract_features(match)
-    X.append(features)
-    y.append(match["result"])
-
-# Split data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Scale features using StandardScaler
-scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
-
-# Train model using RandomForestClassifier
-model = RandomForestClassifier()
-model.fit(X_train_scaled, y_train)
-
-# Evaluate model using accuracy score
-y_pred = model.predict(X_test_scaled)
-accuracy = accuracy_score(y_test, y_pred)
-print("Accuracy:", accuracy)
-
-# Save model to file
-joblib.dump(model, "champions_league_model.pkl")
-
-# Define predict function
-def predict_match_outcome(team1, team2, team1_form, team2_form, head_to_head, injuries):
-    features = extract_features({"homeTeam": {"name": team1}, "awayTeam": {"name": team2}, "result": None})
-    features["team1_avg_goals"] = team1_form["avg_goals"]
-    features["team2_avg_goals"] = team2_form["avg_goals"]
-    features["team1_win_rate"] = team1_form["win_rate"]
-    features["team2_win_rate"] = team2_form["win_rate"]
-    features["head_to_head_team1_wins"] = sum(1 for x in head_to_head if x["winner"] == team1)
-    features["team1_key_injuries"] = len(injuries)
-    
-    features_scaled = scaler.transform([features])
-    
-    probabilities = model.predict_proba(features_scaled)[0]
+    # Predict probabilities [Draw, Team1 Win, Team2 Win]
+    probabilities = model.predict_proba(features_df)[0] # for classification model [0, 1, 2]
+    print(f'Probabilities for {team1} vs {team2}:', probabilities)
     
     return {
-        "team1_win": float(probabilities[1]),
-        "team2_win": float(probabilities[2]),
+        f"{team1} wins": float(probabilities[1]) * 100 ,  # Note index 1 is Team1 win
+        f"{team2} wins": float(probabilities[2]) * 100,  # Index 2 is Team2 win
         "draw": float(probabilities[0]),
     }
+
+
+linear_reg_model = joblib.load("cl_linear_model.pkl")
+def predict_match_linear(team1, team2, venue="HOME", stage=None, team1_injuries=None, team2_injuries=None):
+    """Predicts match outcome (win/draw/loss probabilities) using linear regression"""
+    
+    # Feature engineering
+    features_df = prepare_prediction_data(team1, team2, venue, stage, team1_injuries, team2_injuries)
+    print(f"Features for {team1} vs {team2}:", features_df)
+
+    features_df.to_csv("match_features.csv", index=False)
+    
+    # Predict outcome score
+    prediction = linear_reg_model.predict(features_df)[0]
+    print(f'Prediction score for {team1} vs {team2}:', prediction)
+
+    # Determine the outcome based on the prediction score
+    if prediction > 1.5:
+        result = f"{team2} wins"
+    elif prediction < 0.5:
+        result = f"{team1} wins"
+    else:
+        result = "draw"
+    
+    return {
+        f"{team1} wins": float(prediction < 0.5),
+        f"{team2} wins": float(prediction > 1.5),
+        "draw": float(0.5 <= prediction <= 1.5),
+        "result": result,
+    }
+
+# print(predict_match_linear("Paris Saint-Germain FC", "FC Internazionale Milano", "HOME", "FINAL", [], [])) # for linear regression
+
+# print(predict_match("Paris Saint-Germain FC", "FC Internazionale Milano", "HOME", "FINAL", [], [])) # for classification

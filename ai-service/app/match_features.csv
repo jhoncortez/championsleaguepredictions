@@ -1,0 +1,2 @@
+team1_avg_goals,team2_avg_goals,team1_win_rate,team2_win_rate,head_to_head_team1_wins,head_to_head_team2_wins,home_wins,away_wins,home_losses,away_losses,home_matches,away_matches,home_advantage,away_advantage,home_draws,away_draws,home_goals_conceded,away_goals_conceded,home_goals_scored,away_goals_scored,home_goal_diff,away_goal_diff,stage_importance,venue_advantage
+2.6,2.6,0.8,0.6,0,0,4,3,1,0,5,5,0.6000000000000001,0.6,0,2,6,10,13,13,7,3,1.0,1.0
